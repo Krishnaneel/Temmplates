@@ -1,0 +1,115 @@
+#include<bits/stdc++.h>
+
+using namespace std;
+
+typedef long long int ll;
+typedef long double ld;
+
+
+struct node{
+    ll value;
+    node(){
+        value=0;
+    }
+};
+
+node merge(node a,node b){
+    node c;
+    c.value = a.value+b.value;
+    return c;
+}
+
+node t[4*200200];
+vector<ll>nums;
+
+void build(ll idx,ll l,ll r){
+    if(l==r){
+        t[idx].value=nums[l];
+        return;
+    }
+
+    ll mid=l+(r-l)/2;
+    build(2*idx+1,l,mid);
+    build(2*idx+2,mid+1,r);
+    t[idx]=merge(t[2*idx+1],t[2*idx+2]);
+}
+
+void update(ll idx,ll l,ll r,ll pos,ll k){
+    if(pos<l || pos>r) return;
+
+    if(l==r){ // pos==l && pos==r
+        t[idx].value=k;
+        return;
+    }
+
+    ll mid = l+(r-l)/2;
+    update(2*idx+1,l,mid,pos,k);
+    update(2*idx+2,mid+1,r,pos,k);
+    t[idx]=merge(t[2*idx+1],t[2*idx+2]);
+
+}
+
+node query(ll idx,ll l,ll r,ll ql,ll qr){
+    if(ql>r || qr<l) return node();
+
+    if(l>=ql && r<=qr) return t[idx];
+
+    ll mid = l+(r-l)/2;
+
+    node lh = query(2*idx+1,l,mid,ql,qr);
+    node rh = query(2*idx+2,mid+1,r,ql,qr);
+    return merge(lh,rh);
+}
+
+
+void solve(){
+    ll n,q;
+    cin>>n>>q;
+
+    nums.resize(n);
+
+    for(int i=0;i<n;i++)
+        cin>>nums[i];    
+
+    build(0,0,n-1); 
+
+    ll choice,l,r,pos,x;
+
+    while(q--){
+        cin>>choice;
+        if(choice==1){
+            cin>>pos>>x;
+            pos--;
+            update(0,0,n-1,pos,x);
+        }else{
+            cin>>l>>r;
+            l--,r--;
+            node ans = query(0,0,n-1,l,r);
+            cout<<ans.value<<"\n";
+        }
+    }
+}
+
+
+
+int main() {
+
+#ifndef ONLINE_JUDGE
+     freopen("Input.txt", "r", stdin);
+     freopen("Output.txt", "w", stdout);
+#endif
+
+     ios_base::sync_with_stdio(false);
+     cin.tie(nullptr);
+     cout.tie(nullptr);
+
+     ll t;
+     t = 1;
+     //cin >> t;
+     while (t--)
+     {
+          solve();
+     }
+
+     return 0;
+}
